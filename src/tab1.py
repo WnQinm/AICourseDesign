@@ -35,12 +35,12 @@ class TAB(BASE_TAB):
         summary = self.generate(prompt)
 
         os.makedirs("./gradioTempFolder", exist_ok=True)
-        file_name = "./gradioTempFolder/"+datetime.now().strftime("%y%m%d%H%M%S_summary.txt")
+        file_name = "./gradioTempFolder/"+datetime.now().strftime("%y%m%d%H%M%S_summary.json")
         with open(file_name, "w", encoding="utf-8") as f:
             f.write(json.dumps({
                 "context": text,
                 "summary": summary
-            }))
+            }, ensure_ascii=False))
         return summary, gr.File(file_name, visible=True)
 
     def create_tab(self):
