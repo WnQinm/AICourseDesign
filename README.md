@@ -18,3 +18,6 @@ classDiagram
 	SelectModel: 主类中llm模型选择的实现, 所有tab通用
 ```
 
+任务一效果演示：
+
+![img](./assets/任务一演示.jpg)
