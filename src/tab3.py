@@ -1,5 +1,5 @@
 import gradio as gr
-from base_tab import BASE_TAB
+from .utils import BASE_TAB
 
 
 # 自选
@@ -11,11 +11,8 @@ class TAB(BASE_TAB):
     - 进行单轮或多轮对话均可，不超过 3 轮
     - 导出对话记录
     '''
-    def __init__(self):
-        super().__init__()
-
     def create_tab(self):
-        with gr.Tab("Tab 3"):
+        with gr.Tab("3. 定制服务机器人"):
             with gr.Row():
                 file_input = gr.File(label="Upload a File")
                 file_output = gr.Textbox(label="File Content", interactive=False)

@@ -1,16 +1,20 @@
 import gradio as gr
-from tab1 import TAB as tab1
-from tab2 import TAB as tab2
-from tab3 import TAB as tab3
+from src import *
 
 
 class MyApp:
     def __init__(self):
         self.app = gr.Blocks()
-        self.tabs = [tab1(), tab2(), tab3()]
+        self.select_model = SelectModel()
+        self.tabs = [
+            tab1(select_model=self.select_model),
+            tab2(select_model=self.select_model),
+            tab3(select_model=self.select_model),
+        ]
 
     def launch(self):
         with self.app:
+            self.select_model.select_model()
             with gr.Tabs():
                 for tab in self.tabs:
                     tab.create_tab()

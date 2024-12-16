@@ -1,5 +1,5 @@
 import gradio as gr
-from base_tab import BASE_TAB
+from .utils import BASE_TAB
 
 
 # 角色扮演+多轮对话
@@ -9,11 +9,8 @@ class TAB(BASE_TAB):
     - 与语言模型交互2轮 (提示语不算)
     - 记录并多轮对话的对话历史
     '''
-    def __init__(self):
-        super().__init__()
-
     def create_tab(self):
-        with gr.Tab("Tab 2"):
+        with gr.Tab("2. 角色扮演"):
             with gr.Row():
                 input2 = gr.Number(label="Number 1")
                 input3 = gr.Number(label="Number 2")
