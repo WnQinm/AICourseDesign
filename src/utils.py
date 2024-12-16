@@ -8,7 +8,7 @@ class SelectModel:
     def __init__(self):
         self.model_list:Dict[str, str] = {
                 "---": ["---"],
-                "qwen": ["qwen-max", "qwen-plus"],
+                "qwen": ["qwen-max", "qwen-plus", "qwen-turbo", "qwq-32b-preview"],
             }
         self.current_model_serie:str = "---"
         self.current_model: str = "---"
@@ -59,7 +59,8 @@ class SelectModel:
 
 class BASE_TAB(ABC):
     def __init__(self, select_model:SelectModel):
-        API_KEY = 0
+        with open("./API_KEY.txt", encoding='utf-8') as f:
+            API_KEY = f.read().strip().replace('\n', '')
         self.headers = {
             "Authorization": f"Bearer {API_KEY}",
             "Content-Type": "application/json"
@@ -70,7 +71,7 @@ class BASE_TAB(ABC):
         # 对话时模型可见的对话历史
         self.memory_size = 3
 
-        self.max_tokens = 1024
+        self.max_tokens = 100
         self.seed = 42
 
         self.select_model = select_model
@@ -79,21 +80,15 @@ class BASE_TAB(ABC):
     def current_model(self):
         return self.select_model.current_model
 
-    def _PreSetPrompt(self, prompt):
-        self.history = [{"role": "user", "content": prompt}]
-
     @abstractmethod
     def create_tab(self):
         pass
 
     def generate(self, prompt):
         if self.current_model == "---":
-            return "hello world"
-        # TODO
-        else:
-            return f"{self.current_model} output"
-
+            return "hello world\n(未选择模型, 默认输出)"
         prompt = {"role": "user", "content": prompt}
+
         response = requests.post(
             url="https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
             headers=self.headers,
@@ -104,10 +99,12 @@ class BASE_TAB(ABC):
                 "seed": self.seed,
             },
         )
-        if response.status_code != 200:
-            pass
+        status_code = response.status_code
         response = response.json()
+        if status_code != 200:
+            print(response)
+            return f"请求失败, status_code: {status_code}, message: {response['message']}\n详情见https://help.aliyun.com/zh/model-studio/developer-reference/error-code"
         self.history.append(prompt)
-        self.history.append({"role": "assistant", "content": response["choices"]["message"]["content"]})
+        self.history.append({"role": "assistant", "content": response["choices"][0]["message"]["content"]})
 
         return self.history[-1]["content"]
