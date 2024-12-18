@@ -67,6 +67,7 @@ class BASE_TAB(ABC):
         }
 
         # 历史对话记录
+        self.system_prompt:List[Dict[str, str]] = []
         self.history:List[Dict[str, str]] = []
         # 对话时模型可见的对话历史
         self.memory_size = 3
@@ -77,8 +78,22 @@ class BASE_TAB(ABC):
         self.select_model = select_model
 
     @property
+    def current_model_serie(self):
+        return self.select_model.current_model_serie
+
+    @property
     def current_model(self):
         return self.select_model.current_model
+
+    @property
+    def _chatbot_history(self):
+        if self.memory_size <= 1:
+            return self.system_prompt
+        return self.system_prompt + self.history[-(self.memory_size - 1):]
+
+    @property
+    def all_history(self):
+        return self.system_prompt + self.history
 
     @abstractmethod
     def create_tab(self):
@@ -94,7 +109,7 @@ class BASE_TAB(ABC):
             headers=self.headers,
             json={
                 "model": self.current_model,
-                "messages": self.history + [prompt],
+                "messages": self._chatbot_history + [prompt],
                 "max_tokens": self.max_tokens,
                 "seed": self.seed,
             },
