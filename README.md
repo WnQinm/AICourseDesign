@@ -21,3 +21,7 @@ classDiagram
 任务一效果演示：
 
 ![img](./assets/任务一演示.jpg)
+
+任务二效果演示：
+
+![img](./assets/任务二演示.jpg)
