@@ -88,8 +88,8 @@ class BASE_TAB(ABC):
     @property
     def _chatbot_history(self):
         if self.memory_size <= 1:
-            return self.system_prompt
-        return self.system_prompt + self.history[-(self.memory_size - 1):]
+            return self.system_prompt + [self.history[-1]]
+        return self.system_prompt + self.history[-self.memory_size:]
 
     @property
     def all_history(self):
@@ -100,26 +100,28 @@ class BASE_TAB(ABC):
         pass
 
     def generate(self, prompt):
-        if self.current_model == "---":
-            return "hello world\n(未选择模型, 默认输出)"
         prompt = {"role": "user", "content": prompt}
-
-        response = requests.post(
-            url="https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
-            headers=self.headers,
-            json={
-                "model": self.current_model,
-                "messages": self._chatbot_history + [prompt],
-                "max_tokens": self.max_tokens,
-                "seed": self.seed,
-            },
-        )
-        status_code = response.status_code
-        response = response.json()
-        if status_code != 200:
-            print(response)
-            return f"请求失败, status_code: {status_code}, message: {response['message']}\n详情见https://help.aliyun.com/zh/model-studio/developer-reference/error-code"
         self.history.append(prompt)
-        self.history.append({"role": "assistant", "content": response["choices"][0]["message"]["content"]})
 
+        if self.current_model == "---":
+            response = "hello world\n(未选择模型, 默认输出)"
+        else:
+            response = requests.post(
+                url="https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+                headers=self.headers,
+                json={
+                    "model": self.current_model,
+                    "messages": self._chatbot_history,
+                    "max_tokens": self.max_tokens,
+                    "seed": self.seed,
+                },
+            )
+            status_code = response.status_code
+            response = response.json()
+            if status_code != 200:
+                response = f"请求失败, status_code: {status_code}\n{response}\n详情见https://help.aliyun.com/zh/model-studio/developer-reference/error-code"
+            else:
+                response = response["choices"][0]["message"]["content"]
+
+        self.history.append({"role": "assistant", "content": response})
         return self.history[-1]["content"]
