@@ -4,7 +4,7 @@ from src import *
 
 class MyApp:
     def __init__(self):
-        self.app = gr.Blocks()
+        self.demo = gr.Blocks()
         self.select_model = SelectModel()
         self.tabs = [
             tab1(select_model=self.select_model),
@@ -13,12 +13,12 @@ class MyApp:
         ]
 
     def launch(self):
-        with self.app:
+        with self.demo:
             self.select_model.select_model()
             with gr.Tabs():
                 for tab in self.tabs:
                     tab.create_tab()
-        self.app.launch()
+        self.demo.launch()
 
 
 if __name__ == "__main__":
